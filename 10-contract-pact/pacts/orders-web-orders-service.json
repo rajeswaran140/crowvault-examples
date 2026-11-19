@@ -1,0 +1,109 @@
+{
+  "consumer": {
+    "name": "orders-web"
+  },
+  "interactions": [
+    {
+      "description": "creates an order",
+      "providerStates": [
+        {
+          "name": "customer 0b6d1f4a-0000-4000-8000-000000000002 exists"
+        }
+      ],
+      "request": {
+        "body": {
+          "currency": "USD",
+          "customer_id": "0b6d1f4a-0000-4000-8000-000000000002",
+          "status": "pending",
+          "total_cents": 2900
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "method": "POST",
+        "path": "/v1/orders"
+      },
+      "response": {
+        "body": {
+          "currency": "USD",
+          "customer_id": "0b6d1f4a-0000-4000-8000-000000000002",
+          "id": "7f3c9a2e-0000-4000-8000-000000000001",
+          "status": "pending",
+          "total_cents": 2900
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 201
+      }
+    },
+    {
+      "description": "gets an order",
+      "providerStates": [
+        {
+          "name": "order 7f3c9a2e-0000-4000-8000-000000000001 exists"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/v1/orders/7f3c9a2e-0000-4000-8000-000000000001"
+      },
+      "response": {
+        "body": {
+          "currency": "USD",
+          "customer_id": "0b6d1f4a-0000-4000-8000-000000000002",
+          "id": "7f3c9a2e-0000-4000-8000-000000000001",
+          "status": "pending",
+          "total_cents": 2900
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "13.1.4"
+    },
+    "pactRust": {
+      "ffi": "0.4.22",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "orders-service"
+  }
+}

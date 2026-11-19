@@ -31,10 +31,16 @@ variable "subnet_ids" {
   description = "Private subnets (at least two AZs)"
 }
 
+variable "app_security_group_ids" {
+  type        = list(string)
+  description = "Security groups of the services that connect (preferred over CIDRs)"
+  default     = []
+}
+
 variable "allowed_cidr_blocks" {
   type        = list(string)
-  description = "CIDRs allowed to connect"
-  default     = ["10.0.0.0/16"]
+  description = "Extra CIDRs allowed to connect (keep empty if possible)"
+  default     = []
 }
 
 variable "instance_class" {
@@ -45,8 +51,14 @@ variable "instance_class" {
 
 variable "allocated_storage" {
   type        = number
-  description = "Storage in GiB"
+  description = "Initial storage in GiB"
   default     = 20
+}
+
+variable "max_allocated_storage" {
+  type        = number
+  description = "Storage autoscaling ceiling in GiB"
+  default     = 100
 }
 
 variable "username" {

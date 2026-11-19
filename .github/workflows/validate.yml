@@ -1,0 +1,91 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply schema.sql to PostgreSQL 16
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f 01-database-schema/schema.sql
+      - name: prisma validate
+        working-directory: 01-database-schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: npx -y prisma@5.22.0 validate
+
+  config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: OpenAPI (Redocly)
+        run: npx -y @redocly/cli@1.25.11 lint 02-openapi-spec/openapi.yaml
+      - name: Dockerfile (hadolint)
+        run: docker run --rm -i hadolint/hadolint:v2.12.0 < 03-dockerfile/Dockerfile
+      - name: Docker Compose
+        working-directory: 04-docker-compose
+        run: |
+          cp .env.development.example .env.development
+          docker compose --env-file .env.development config -q
+      - name: Kubernetes (kubeconform)
+        run: docker run --rm -v "$PWD/05-kubernetes:/w" ghcr.io/yannh/kubeconform:v0.6.7 -strict -summary /w/k8s.yaml
+      - name: GitHub Actions (actionlint)
+        run: docker run --rm -v "$PWD/06-github-actions:/repo" -w /repo rhysd/actionlint:1.7.4 -no-color .github/workflows/ci.yml
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+      - name: Terraform
+        working-directory: 07-terraform-aws-rds
+        run: terraform init -backend=false -input=false && terraform validate
+      - name: Bicep
+        run: az bicep install && az bicep build --file 11-azure-container-app/main.bicep --stdout > /dev/null
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install test tools
+        run: |
+          mkdir -p "$RUNNER_TEMP/ts" && cd "$RUNNER_TEMP/ts"
+          npm init -y > /dev/null
+          npm i -D jest@29.7.0 ts-jest@29.2.5 typescript@5.6.3 @types/jest@29.5.14 @types/node@20.17.6 \
+            @pact-foundation/pact@13.1.4 @playwright/test@1.48.2 playwright-core@1.48.2 @axe-core/playwright@4.10.1
+      - name: Unit tests (08) — tsc + Jest against the reference implementation
+        run: |
+          W="$RUNNER_TEMP/unit"; mkdir -p "$W/tests"
+          cp -r .ci/unit/src "$W/" && cp 08-unit-tests-jest/calculateTotal.test.ts "$W/tests/"
+          cp .ci/ts/tsconfig.json "$W/" && ln -s "$RUNNER_TEMP/ts/node_modules" "$W/node_modules"
+          cd "$W" && npx tsc -p . && npx jest --config '{"preset":"ts-jest","testEnvironment":"node"}'
+      - name: Pact consumer (10) — tsc + run
+        run: |
+          W="$RUNNER_TEMP/pact"; mkdir -p "$W"
+          cp -r 10-contract-pact/test "$W/" && cp .ci/ts/tsconfig.json "$W/"
+          ln -s "$RUNNER_TEMP/ts/node_modules" "$W/node_modules"
+          cd "$W" && npx tsc -p . && npx jest --config '{"preset":"ts-jest","testEnvironment":"node"}' test/orders-web.pact.test.ts
+          test -f pacts/orders-web-orders-service.json
+      - name: Playwright (09) — tsc + the tests load
+        run: |
+          W="$RUNNER_TEMP/e2e"; mkdir -p "$W"
+          cp -r 09-e2e-playwright/e2e 09-e2e-playwright/playwright.config.ts "$W/"
+          jq '.compilerOptions.types = ["node"]' .ci/ts/tsconfig.json > "$W/tsconfig.json"
+          ln -s "$RUNNER_TEMP/ts/node_modules" "$W/node_modules"
+          cd "$W" && npx tsc -p . && npx playwright test --list

@@ -11,43 +11,47 @@ const pact = new PactV3({
 });
 
 describe('orders-web → orders-service contract', () => {
-  it('GET /orders/1', () => {
+  it('gets an order', () => {
     pact
-      .uponReceiving('GET /orders/1')
+      .given('order 7f3c9a2e-0000-4000-8000-000000000001 exists')
+      .uponReceiving('gets an order')
       .withRequest({
         method: 'GET',
-        path: '/orders/1',
+        path: '/v1/orders/7f3c9a2e-0000-4000-8000-000000000001',
       })
       .willRespondWith({
         status: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: like({"currency":"USD","customer_id":"0b6d1f4a-0000-4000-8000-000000000002","id":"7f3c9a2e-0000-4000-8000-000000000001","status":"pending","total_cents":2900}),
       });
 
     return pact.executeTest(async (mockServer) => {
-      const res = await fetch(`${mockServer.url}/orders/1`, { method: 'GET' });
+      const res = await fetch(`${mockServer.url}/v1/orders/7f3c9a2e-0000-4000-8000-000000000001`, { method: 'GET' });
       expect(res.status).toBe(200);
+        expect(await res.json()).toEqual({"currency":"USD","customer_id":"0b6d1f4a-0000-4000-8000-000000000002","id":"7f3c9a2e-0000-4000-8000-000000000001","status":"pending","total_cents":2900});
     });
   });
 
   it('creates an order', () => {
     pact
-      .given('a cart exists')
+      .given('customer 0b6d1f4a-0000-4000-8000-000000000002 exists')
       .uponReceiving('creates an order')
       .withRequest({
         method: 'POST',
-        path: '/orders',
+        path: '/v1/orders',
         headers: { 'Content-Type': 'application/json' },
-        body: {"qty":2,"sku":"A1"},
+        body: {"currency":"USD","customer_id":"0b6d1f4a-0000-4000-8000-000000000002","status":"pending","total_cents":2900},
       })
       .willRespondWith({
         status: 201,
         headers: { 'Content-Type': 'application/json' },
-        body: like({"id":"o-1","status":"pending"}),
+        body: like({"currency":"USD","customer_id":"0b6d1f4a-0000-4000-8000-000000000002","id":"7f3c9a2e-0000-4000-8000-000000000001","status":"pending","total_cents":2900}),
       });
 
     return pact.executeTest(async (mockServer) => {
-      const res = await fetch(`${mockServer.url}/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({"qty":2,"sku":"A1"}) });
+      const res = await fetch(`${mockServer.url}/v1/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({"currency":"USD","customer_id":"0b6d1f4a-0000-4000-8000-000000000002","status":"pending","total_cents":2900}) });
       expect(res.status).toBe(201);
-        expect(await res.json()).toEqual({"id":"o-1","status":"pending"});
+        expect(await res.json()).toEqual({"currency":"USD","customer_id":"0b6d1f4a-0000-4000-8000-000000000002","id":"7f3c9a2e-0000-4000-8000-000000000001","status":"pending","total_cents":2900});
     });
   });
 });

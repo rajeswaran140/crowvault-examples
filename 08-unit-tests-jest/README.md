@@ -65,4 +65,5 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 ## Checked with
 
-esbuild (TypeScript)
+- `tsc --noEmit --strict`: no errors
+- Run with Jest 29 against a small reference `calculateTotal` (in [`.ci/unit`](../.ci/unit), not generated): 3 passed, 1 todo

@@ -38,8 +38,10 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
         transport: 'auto'
         traffic: [{ latestRevision: true, weight: 100 }]
         corsPolicy: {
-          allowedOrigins: ['*']
-          allowedMethods: ['GET','POST','PUT','DELETE','OPTIONS']
+          allowedOrigins: ['https://shop.example.com']
+          allowedMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
+          allowedHeaders: ['Authorization', 'Content-Type']
+          maxAge: 600
         }
       }
     }
@@ -50,13 +52,13 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
           image: 'ghcr.io/acme/orders-service:1.0.0'
           resources: { cpu: json('0.5'), memory: '1Gi' }
           probes: [
-            { type: 'Liveness',  httpGet: { path: '/health', port: 3000 } }
-            { type: 'Readiness', httpGet: { path: '/health', port: 3000 } }
+            { type: 'Liveness',  httpGet: { path: '/health', port: 3000 }, initialDelaySeconds: 10, periodSeconds: 10 }
+            { type: 'Readiness', httpGet: { path: '/health', port: 3000 }, periodSeconds: 5 }
           ]
         }
       ]
       scale: {
-        minReplicas: 0
+        minReplicas: 1
         maxReplicas: 5
         rules: [
           {

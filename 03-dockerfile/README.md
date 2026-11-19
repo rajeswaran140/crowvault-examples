@@ -1,6 +1,6 @@
 # Dockerfile
 
-Multi-stage Node 20 build: slim runtime image, non-root user, health check.
+Multi-stage Node 20 build: dev dependencies pruned, `NODE_ENV=production`, non-root user, health check on `/health`, and a `.dockerignore`.
 
 ## Generated with
 
@@ -27,7 +27,9 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 ## Files
 
 - [`Dockerfile`](Dockerfile)
+- [`.dockerignore`](.dockerignore)
 
 ## Checked with
 
-—
+- hadolint 2.12.0: no findings
+- Not built here: it needs your service's source and `package.json`

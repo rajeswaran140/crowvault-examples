@@ -1,17 +1,26 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 model Order {
-  id             String   @id @default(cuid())
-  customer_id    String
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId     String @db.Uuid @map("customer_id")
   status         String
-  total_cents    Int
+  totalCents     Int @map("total_cents")
   currency       String
 
-  // Relations
-  customer  Customer  @relation(fields: [customer_id], references: [id])
-  // NOTE: Model "Customer" must exist in your schema
+  // Relation to Customer: add it when that model exists (pass existingModels: ["Customer"])
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  deletedAt      DateTime?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
 
-  @@index([customer_id])
+  @@index([customerId])
+
+  @@map("orders")
 }

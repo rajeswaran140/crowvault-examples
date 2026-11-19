@@ -1,6 +1,6 @@
 # GitHub Actions CI/CD
 
-Build and test on every PR, build and push the image to GHCR, deploy to Kubernetes on main.
+Build and test on every push and PR. Only on pushes to main: push the image to GHCR, then deploy to Kubernetes with cluster credentials from a secret, behind a `production` environment.
 
 ## Generated with
 
@@ -29,4 +29,5 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 ## Checked with
 
-actionlint
+- actionlint 1.7.4: no findings
+- Not run on GitHub: the deploy job needs a `KUBECONFIG_B64` secret and a `production` environment

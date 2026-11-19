@@ -1,4 +1,4 @@
-import { test, expect, devices } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 test.describe('checkout', () => {
@@ -46,9 +46,7 @@ test.describe('checkout', () => {
 });
 
 test.describe('checkout — mobile', () => {
-  test.use({ ...devices['iPhone 13'] });
-
-  test('renders without horizontal scroll', async ({ page }) => {
+  test('renders without horizontal scroll @mobile', async ({ page }) => {
     await page.goto('/');
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);

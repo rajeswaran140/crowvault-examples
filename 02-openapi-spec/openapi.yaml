@@ -50,7 +50,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
     post:
       operationId: createOrder
-      summary: Create a order
+      summary: Create an order
       tags: [Order]
       requestBody:
         required: true
@@ -72,7 +72,7 @@ paths:
   /orders/{id}:
     get:
       operationId: getOrder
-      summary: Get a order by ID
+      summary: Get an order by ID
       tags: [Order]
       parameters:
         - in: path
@@ -92,7 +92,7 @@ paths:
           $ref: '#/components/responses/NotFound'
     patch:
       operationId: updateOrder
-      summary: Update a order
+      summary: Update an order
       tags: [Order]
       parameters:
         - in: path
@@ -120,7 +120,7 @@ paths:
           $ref: '#/components/responses/NotFound'
     delete:
       operationId: deleteOrder
-      summary: Delete a order
+      summary: Delete an order
       tags: [Order]
       parameters:
         - in: path
@@ -259,30 +259,38 @@ components:
   schemas:
     Order:
       type: object
-      required: [id, name, createdAt, updatedAt]
+      required: [id, customer_id, status, total_cents, currency, createdAt, updatedAt]
       properties:
         id: { type: string, format: uuid, readOnly: true }
-        name: { type: string }
+        customer_id: { type: string, format: uuid }
+        status: { type: string }
+        total_cents: { type: integer }
+        currency: { type: string }
         createdAt: { type: string, format: date-time, readOnly: true }
         updatedAt: { type: string, format: date-time, readOnly: true }
     OrderInput:
       type: object
-      required: [name]
+      required: [customer_id, status, total_cents, currency]
       properties:
-        name: { type: string, minLength: 1 }
+        customer_id: { type: string, format: uuid }
+        status: { type: string }
+        total_cents: { type: integer }
+        currency: { type: string }
     Customer:
       type: object
-      required: [id, name, createdAt, updatedAt]
+      required: [id, email, name, createdAt, updatedAt]
       properties:
         id: { type: string, format: uuid, readOnly: true }
+        email: { type: string, format: email }
         name: { type: string }
         createdAt: { type: string, format: date-time, readOnly: true }
         updatedAt: { type: string, format: date-time, readOnly: true }
     CustomerInput:
       type: object
-      required: [name]
+      required: [email, name]
       properties:
-        name: { type: string, minLength: 1 }
+        email: { type: string, format: email }
+        name: { type: string }
     Error:
       type: object
       required: [code, message]

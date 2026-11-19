@@ -1,6 +1,6 @@
 # Docker Compose
 
-The service with PostgreSQL and Redis from official images (with health checks), plus Prometheus and Grafana.
+The service (built from the Dockerfile in example 03) with PostgreSQL and Redis from official images, health checks, plus Prometheus and Grafana.
 
 ## Generated with
 
@@ -30,7 +30,9 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 - [`docker-compose.yml`](docker-compose.yml)
 - [`infra/prometheus/prometheus.yml`](infra/prometheus/prometheus.yml)
+- [`.env.development.example`](.env.development.example)
 
 ## Checked with
 
-`docker compose config`
+- `docker compose --env-file .env.development config` with the example env file: valid
+- Not started here: the `orders-service` build context is your service's folder

@@ -1,6 +1,6 @@
 # Database schema
 
-An `Order` aggregate as PostgreSQL DDL and a Prisma model, with audit timestamps, soft delete and an index on the foreign key.
+An `Order` aggregate as PostgreSQL DDL and the matching Prisma model (`@@map`/`@map` to the same table and columns, same UUID ids), with audit timestamps, soft delete and an index on the foreign key. The foreign key to `customers` is left commented until that table exists.
 
 ## Generated with
 
@@ -37,4 +37,5 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 ## Checked with
 
-PostgreSQL parser (sqlglot)
+- Applied to PostgreSQL 16 with `psql -v ON_ERROR_STOP=1` (table and index created)
+- `prisma validate` (Prisma 5.22.0): valid

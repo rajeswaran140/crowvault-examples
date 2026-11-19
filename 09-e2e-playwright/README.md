@@ -1,6 +1,6 @@
 # End-to-end tests (Playwright)
 
-Smoke checks that hold on any site (status, title, console errors, failed requests, broken links, axe accessibility), the checkout steps as real code, and a mobile viewport check.
+Smoke checks that hold on any site (status, title, console errors, failed requests, broken links, axe accessibility), the checkout steps as real code, and a mobile check that runs as its own `mobile-safari` project.
 
 ## Generated with
 
@@ -39,4 +39,6 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 ## Checked with
 
-esbuild (TypeScript); smoke checks run against a live site
+- `tsc --noEmit --strict`: no errors
+- `playwright test --list` (Playwright 1.48.2): 5 tests load, 4 in `chromium` and 1 in `mobile-safari`
+- Not run here: shop.example.com is a placeholder. The smoke checks were run against a live site during development

@@ -5,7 +5,6 @@ metadata:
   labels:
     app: orders-service
 spec:
-  replicas: 3
   selector:
     matchLabels:
       app: orders-service
@@ -24,6 +23,8 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: orders-service
           image: ghcr.io/acme/orders-service:1.0.0
@@ -33,6 +34,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: orders-service-config
+            # DATABASE_URL and other secrets: kubectl create secret generic orders-service-secrets --from-literal=DATABASE_URL=...
+            - secretRef:
+                name: orders-service-secrets
+                optional: true
           resources:
             requests:
               cpu: "100m"
@@ -42,13 +47,13 @@ spec:
               memory: "512Mi"
           readinessProbe:
             httpGet:
-              path: /health/ready
+              path: /health
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 5
           livenessProbe:
             httpGet:
-              path: /health/live
+              path: /health
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -70,6 +75,16 @@ kind: ServiceAccount
 metadata:
   name: orders-service
 automountServiceAccountToken: false
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: orders-service
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: orders-service
 ---
 apiVersion: v1
 kind: Service

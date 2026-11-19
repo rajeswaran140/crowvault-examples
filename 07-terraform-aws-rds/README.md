@@ -1,6 +1,6 @@
 # Terraform: AWS RDS module
 
-PostgreSQL 16 on RDS: encrypted storage, password managed in Secrets Manager, private subnets, Multi-AZ, backups and deletion protection in production.
+PostgreSQL 16 on RDS: ingress only from the app's security groups, encrypted storage with autoscaling, password managed in Secrets Manager, Performance Insights, Multi-AZ, backups, deletion protection and a uniquely named final snapshot in production.
 
 ## Generated with
 
@@ -31,4 +31,5 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 ## Checked with
 
-`terraform validate` (AWS provider ~> 5.0)
+- `terraform init -backend=false && terraform validate` (Terraform 1.9.8, AWS provider ~> 5.0): valid
+- Not applied (no `plan` against an AWS account)
