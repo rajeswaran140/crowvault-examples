@@ -1,0 +1,15 @@
+{
+  "server": "azure-mcp",
+  "tool": "generate_container_app",
+  "args": {
+    "name": "orders-service",
+    "location": "eastus",
+    "image": "ghcr.io/acme/orders-service:1.0.0",
+    "targetPort": 3000,
+    "cpu": 0.5,
+    "allowedOrigins": [
+      "https://shop.example.com"
+    ],
+    "healthPath": "/health"
+  }
+}

@@ -7,20 +7,29 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum OrderStatus {
+  pending
+  paid
+  shipped
+  cancelled
+
+  @@map("order_status")
+}
+
 model Order {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   customerId     String @db.Uuid @map("customer_id")
-  status         String
+  status         OrderStatus
   totalCents     Int @map("total_cents")
-  currency       String
+  currency       String @db.Char(3)
 
   // Relation to Customer: add it when that model exists (pass existingModels: ["Customer"])
 
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at")
+  createdAt      DateTime @default(now()) @db.Timestamptz(6) @map("created_at")
+  updatedAt      DateTime @default(now()) @updatedAt @db.Timestamptz(6) @map("updated_at")
+  deletedAt      DateTime? @db.Timestamptz(6) @map("deleted_at")
 
-  @@index([customerId])
+  @@index([customerId], map: "idx_orders_customer_id")
 
   @@map("orders")
 }

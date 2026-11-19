@@ -1,20 +1,24 @@
 # Docker Compose
 
-The service (built from the Dockerfile in example 03) with PostgreSQL and Redis from official images, health checks, plus Prometheus and Grafana.
+The service (built from the Dockerfile in example 03) with PostgreSQL and Redis from official images, health checks, Prometheus and Grafana, plus an example env file and the `--env-file` command.
 
 ## Generated with
 
-Tool `generate_docker_compose` (CrowVault `devops` server) with:
+Tool `generate_docker_compose` (CrowVault `devops-mcp` server). The exact request is in [`request.json`](request.json):
 
 ```json
 {
-  "services": [
-    "orders-service",
-    "postgres",
-    "redis"
-  ],
-  "environment": "development",
-  "withObservability": true
+  "server": "devops-mcp",
+  "tool": "generate_docker_compose",
+  "args": {
+    "services": [
+      "orders-service",
+      "postgres",
+      "redis"
+    ],
+    "environment": "development",
+    "withObservability": true
+  }
 }
 ```
 
@@ -23,7 +27,7 @@ From Claude Code, Cursor or any MCP client connected to CrowVault, ask for it in
 ```bash
 curl -s https://api.crowvault.ai/v1/tools/call \
   -H "Authorization: Bearer $CROWVAULT_API_KEY" -H 'Content-Type: application/json' \
-  -d '{"server": "devops-mcp", "tool": "generate_docker_compose", "args": {"services": ["orders-service", "postgres", "redis"], "environment": "development", "withObservability": true}}'
+  --data-binary @request.json
 ```
 
 ## Files

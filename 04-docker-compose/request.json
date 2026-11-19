@@ -1,0 +1,13 @@
+{
+  "server": "devops-mcp",
+  "tool": "generate_docker_compose",
+  "args": {
+    "services": [
+      "orders-service",
+      "postgres",
+      "redis"
+    ],
+    "environment": "development",
+    "withObservability": true
+  }
+}

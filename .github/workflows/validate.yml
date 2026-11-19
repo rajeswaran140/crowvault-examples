@@ -3,6 +3,7 @@ name: validate
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
         options: >-
           --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Apply schema.sql to PostgreSQL 16
         env:
           PGPASSWORD: postgres
@@ -29,11 +30,16 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
         run: npx -y prisma@5.22.0 validate
+      - name: SQL and Prisma describe the same table
+        working-directory: 01-database-schema
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+        run: npx -y prisma@5.22.0 migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel schema.prisma --exit-code
 
   config:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: OpenAPI (Redocly)
         run: npx -y @redocly/cli@1.25.11 lint 02-openapi-spec/openapi.yaml
       - name: Dockerfile (hadolint)
@@ -47,20 +53,26 @@ jobs:
         run: docker run --rm -v "$PWD/05-kubernetes:/w" ghcr.io/yannh/kubeconform:v0.6.7 -strict -summary /w/k8s.yaml
       - name: GitHub Actions (actionlint)
         run: docker run --rm -v "$PWD/06-github-actions:/repo" -w /repo rhysd/actionlint:1.7.4 -no-color .github/workflows/ci.yml
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: 1.9.8
       - name: Terraform
         working-directory: 07-terraform-aws-rds
-        run: terraform init -backend=false -input=false && terraform validate
+        run: |
+          terraform fmt -check -recursive
+          terraform init -backend=false -input=false
+          terraform validate
       - name: Bicep
-        run: az bicep install && az bicep build --file 11-azure-container-app/main.bicep --stdout > /dev/null
+        run: |
+          az bicep install
+          az bicep build --file 11-azure-container-app/main.bicep --stdout > /dev/null
+          az bicep lint --file 11-azure-container-app/main.bicep
 
   typescript:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: '20'
       - name: Install test tools
@@ -81,7 +93,9 @@ jobs:
           cp -r 10-contract-pact/test "$W/" && cp .ci/ts/tsconfig.json "$W/"
           ln -s "$RUNNER_TEMP/ts/node_modules" "$W/node_modules"
           cd "$W" && npx tsc -p . && npx jest --config '{"preset":"ts-jest","testEnvironment":"node"}' test/orders-web.pact.test.ts
-          test -f pacts/orders-web-orders-service.json
+          # The committed pact must be exactly what the tests produce (metadata aside).
+          diff <(jq -S 'del(.metadata)' pacts/orders-web-orders-service.json) \
+               <(jq -S 'del(.metadata)' "$GITHUB_WORKSPACE/10-contract-pact/pacts/orders-web-orders-service.json")
       - name: Playwright (09) — tsc + the tests load
         run: |
           W="$RUNNER_TEMP/e2e"; mkdir -p "$W"
@@ -89,3 +103,17 @@ jobs:
           jq '.compilerOptions.types = ["node"]' .ci/ts/tsconfig.json > "$W/tsconfig.json"
           ln -s "$RUNNER_TEMP/ts/node_modules" "$W/node_modules"
           cd "$W" && npx tsc -p . && npx playwright test --list
+
+  reproduce:
+    # Manual run: regenerate every example from the live API and require
+    # byte-identical output. Needs a free-plan key in the CROWVAULT_API_KEY secret.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Regenerate from request.json files
+        env:
+          CROWVAULT_API_KEY: ${{ secrets.CROWVAULT_API_KEY }}
+        run: scripts/regenerate.sh
+      - name: Output matches the committed files
+        run: git diff --exit-code

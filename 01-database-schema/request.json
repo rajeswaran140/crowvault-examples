@@ -1,0 +1,17 @@
+{
+  "server": "database-mcp",
+  "tool": "design_schema",
+  "args": {
+    "aggregate": "Order",
+    "database": "postgresql",
+    "fields": [
+      "customer_id:uuid",
+      "status:enum(pending,paid,shipped,cancelled)",
+      "total_cents:integer",
+      "currency:char(3)"
+    ],
+    "outputFormat": "both",
+    "withTimestamps": true,
+    "withSoftDelete": true
+  }
+}

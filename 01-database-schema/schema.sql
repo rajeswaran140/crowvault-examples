@@ -1,10 +1,12 @@
 -- Order aggregate schema (postgresql)
+CREATE TYPE order_status AS ENUM ('pending', 'paid', 'shipped', 'cancelled');
+
 CREATE TABLE orders (
   id                       UUID          NOT NULL DEFAULT gen_random_uuid()  PRIMARY KEY,
   customer_id              UUID  NOT NULL,
-  status                   VARCHAR(255)  NOT NULL,
+  status                   order_status  NOT NULL,
   total_cents              INTEGER  NOT NULL,
-  currency                 VARCHAR(255)  NOT NULL,
+  currency                 CHAR(3)  NOT NULL,
   created_at               TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   updated_at               TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   deleted_at               TIMESTAMPTZ  NULL

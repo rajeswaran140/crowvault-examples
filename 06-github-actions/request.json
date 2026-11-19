@@ -1,0 +1,10 @@
+{
+  "server": "devops-mcp",
+  "tool": "generate_github_actions",
+  "args": {
+    "service": "orders-service",
+    "runtime": "node",
+    "deployTarget": "kubernetes",
+    "withDockerBuild": true
+  }
+}

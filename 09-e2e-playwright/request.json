@@ -1,0 +1,19 @@
+{
+  "server": "testing-mcp",
+  "tool": "generate_playwright_test",
+  "args": {
+    "testName": "checkout",
+    "url": "https://shop.example.com",
+    "actions": [
+      "click #add-to-cart",
+      "goto /cart",
+      "fill \"input[name=email]\" jane@example.com",
+      "click button[type=submit]"
+    ],
+    "assertions": [
+      "url /order-confirmed",
+      "text h1 Thank you"
+    ],
+    "mobile": true
+  }
+}

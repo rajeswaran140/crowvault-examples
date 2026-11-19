@@ -49,10 +49,10 @@ resource "aws_vpc_security_group_ingress_rule" "from_cidr" {
 }
 
 resource "aws_db_instance" "main" {
-  identifier        = var.name
-  engine            = "postgres"
-  engine_version    = "16"
-  instance_class    = var.instance_class
+  identifier            = var.name
+  engine                = "postgres"
+  engine_version        = "16"
+  instance_class        = var.instance_class
   allocated_storage     = var.allocated_storage
   max_allocated_storage = var.max_allocated_storage # storage autoscaling ceiling
   storage_type          = "gp3"
@@ -72,8 +72,8 @@ resource "aws_db_instance" "main" {
   deletion_protection                   = local.is_production
   skip_final_snapshot                   = !local.is_production
   final_snapshot_identifier             = "${var.name}-final-${formatdate("YYYYMMDDhhmmss", timestamp())}"
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
+  performance_insights_enabled          = local.is_production
+  performance_insights_retention_period = local.is_production ? 7 : null
   auto_minor_version_upgrade            = true
 
   tags = merge(var.tags, { Environment = var.environment })

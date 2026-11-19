@@ -1,0 +1,10 @@
+{
+  "server": "devops-mcp",
+  "tool": "generate_terraform_module",
+  "args": {
+    "resourceType": "rds",
+    "provider": "aws",
+    "moduleName": "orders-db",
+    "environment": "production"
+  }
+}
