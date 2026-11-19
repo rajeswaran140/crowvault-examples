@@ -1,0 +1,46 @@
+{
+  "server": "testing-mcp",
+  "tool": "generate_jest_test",
+  "args": {
+    "functionName": "calculateTotal",
+    "modulePath": "../src/orders/calculateTotal",
+    "testCases": [
+      {
+        "name": "sums line items",
+        "input": [
+          [
+            {
+              "priceCents": 1200,
+              "qty": 2
+            },
+            {
+              "priceCents": 500,
+              "qty": 1
+            }
+          ]
+        ],
+        "expected": 2900
+      },
+      {
+        "name": "returns 0 for an empty cart",
+        "input": [
+          []
+        ],
+        "expected": 0
+      },
+      {
+        "name": "rejects a negative quantity",
+        "input": [
+          [
+            {
+              "priceCents": 1200,
+              "qty": -1
+            }
+          ]
+        ],
+        "throws": "quantity"
+      },
+      "applies the loyalty discount"
+    ]
+  }
+}

@@ -4,19 +4,23 @@ Log Analytics workspace, Container Apps environment and the app with ingress, CO
 
 ## Generated with
 
-Tool `generate_container_app` (CrowVault `azure` server) with:
+Tool `generate_container_app` (CrowVault `azure-mcp` server). The exact request is in [`request.json`](request.json):
 
 ```json
 {
-  "name": "orders-service",
-  "location": "eastus",
-  "image": "ghcr.io/acme/orders-service:1.0.0",
-  "targetPort": 3000,
-  "cpu": 0.5,
-  "allowedOrigins": [
-    "https://shop.example.com"
-  ],
-  "healthPath": "/health"
+  "server": "azure-mcp",
+  "tool": "generate_container_app",
+  "args": {
+    "name": "orders-service",
+    "location": "eastus",
+    "image": "ghcr.io/acme/orders-service:1.0.0",
+    "targetPort": 3000,
+    "cpu": 0.5,
+    "allowedOrigins": [
+      "https://shop.example.com"
+    ],
+    "healthPath": "/health"
+  }
 }
 ```
 
@@ -25,7 +29,7 @@ From Claude Code, Cursor or any MCP client connected to CrowVault, ask for it in
 ```bash
 curl -s https://api.crowvault.ai/v1/tools/call \
   -H "Authorization: Bearer $CROWVAULT_API_KEY" -H 'Content-Type: application/json' \
-  -d '{"server": "azure-mcp", "tool": "generate_container_app", "args": {"name": "orders-service", "location": "eastus", "image": "ghcr.io/acme/orders-service:1.0.0", "targetPort": 3000, "cpu": 0.5, "allowedOrigins": ["https://shop.example.com"], "healthPath": "/health"}}'
+  --data-binary @request.json
 ```
 
 ## Files
@@ -34,5 +38,5 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 
 ## Checked with
 
-- `bicep build` (Bicep CLI 0.48.1): no errors or warnings
+- `bicep build` and `bicep lint` (Bicep CLI 0.48.1): no errors or warnings
 - Not deployed

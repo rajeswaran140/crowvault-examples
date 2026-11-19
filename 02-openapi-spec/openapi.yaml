@@ -2,6 +2,9 @@ openapi: "3.0.3"
 info:
   title: orders-service API
   version: "1.0.0"
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
   description: |
     REST API for orders-service.
     Authentication: send `Authorization: Bearer <JWT>` on every request.
@@ -86,6 +89,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        "400":
+          $ref: '#/components/responses/BadRequest'
         "401":
           $ref: '#/components/responses/Unauthorized'
         "404":
@@ -104,7 +109,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderInput'
+              $ref: '#/components/schemas/OrderPatch'
       responses:
         "200":
           description: OK
@@ -130,6 +135,8 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          $ref: '#/components/responses/BadRequest'
         "401":
           $ref: '#/components/responses/Unauthorized'
         "404":
@@ -202,6 +209,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
+        "400":
+          $ref: '#/components/responses/BadRequest'
         "401":
           $ref: '#/components/responses/Unauthorized'
         "404":
@@ -220,7 +229,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomerInput'
+              $ref: '#/components/schemas/CustomerPatch'
       responses:
         "200":
           description: OK
@@ -246,6 +255,8 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          $ref: '#/components/responses/BadRequest'
         "401":
           $ref: '#/components/responses/Unauthorized'
         "404":
@@ -259,35 +270,49 @@ components:
   schemas:
     Order:
       type: object
-      required: [id, customer_id, status, total_cents, currency, createdAt, updatedAt]
+      required: [id, customer_id, status, total_cents, currency, created_at, updated_at]
       properties:
         id: { type: string, format: uuid, readOnly: true }
         customer_id: { type: string, format: uuid }
-        status: { type: string }
+        status: { type: string, enum: [pending, paid, shipped, cancelled] }
         total_cents: { type: integer }
-        currency: { type: string }
-        createdAt: { type: string, format: date-time, readOnly: true }
-        updatedAt: { type: string, format: date-time, readOnly: true }
+        currency: { type: string, minLength: 3, maxLength: 3, pattern: '^[A-Z]{3}$' }
+        created_at: { type: string, format: date-time, readOnly: true }
+        updated_at: { type: string, format: date-time, readOnly: true }
     OrderInput:
       type: object
       required: [customer_id, status, total_cents, currency]
       properties:
         customer_id: { type: string, format: uuid }
-        status: { type: string }
+        status: { type: string, enum: [pending, paid, shipped, cancelled] }
         total_cents: { type: integer }
-        currency: { type: string }
+        currency: { type: string, minLength: 3, maxLength: 3, pattern: '^[A-Z]{3}$' }
+    OrderPatch:
+      type: object
+      minProperties: 1
+      properties:
+        customer_id: { type: string, format: uuid }
+        status: { type: string, enum: [pending, paid, shipped, cancelled] }
+        total_cents: { type: integer }
+        currency: { type: string, minLength: 3, maxLength: 3, pattern: '^[A-Z]{3}$' }
     Customer:
       type: object
-      required: [id, email, name, createdAt, updatedAt]
+      required: [id, email, name, created_at, updated_at]
       properties:
         id: { type: string, format: uuid, readOnly: true }
         email: { type: string, format: email }
         name: { type: string }
-        createdAt: { type: string, format: date-time, readOnly: true }
-        updatedAt: { type: string, format: date-time, readOnly: true }
+        created_at: { type: string, format: date-time, readOnly: true }
+        updated_at: { type: string, format: date-time, readOnly: true }
     CustomerInput:
       type: object
       required: [email, name]
+      properties:
+        email: { type: string, format: email }
+        name: { type: string }
+    CustomerPatch:
+      type: object
+      minProperties: 1
       properties:
         email: { type: string, format: email }
         name: { type: string }

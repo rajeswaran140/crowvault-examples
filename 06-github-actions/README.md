@@ -1,17 +1,21 @@
 # GitHub Actions CI/CD
 
-Build and test on every push and PR. Only on pushes to main: push the image to GHCR, then deploy to Kubernetes with cluster credentials from a secret, behind a `production` environment.
+Build and test on every push and PR. Only on pushes to main: push the image to GHCR, then deploy to Kubernetes behind a `production` environment, with the kubeconfig secret passed through `env` and a clear error if it is missing.
 
 ## Generated with
 
-Tool `generate_github_actions` (CrowVault `devops` server) with:
+Tool `generate_github_actions` (CrowVault `devops-mcp` server). The exact request is in [`request.json`](request.json):
 
 ```json
 {
-  "service": "orders-service",
-  "runtime": "node",
-  "deployTarget": "kubernetes",
-  "withDockerBuild": true
+  "server": "devops-mcp",
+  "tool": "generate_github_actions",
+  "args": {
+    "service": "orders-service",
+    "runtime": "node",
+    "deployTarget": "kubernetes",
+    "withDockerBuild": true
+  }
 }
 ```
 
@@ -20,7 +24,7 @@ From Claude Code, Cursor or any MCP client connected to CrowVault, ask for it in
 ```bash
 curl -s https://api.crowvault.ai/v1/tools/call \
   -H "Authorization: Bearer $CROWVAULT_API_KEY" -H 'Content-Type: application/json' \
-  -d '{"server": "devops-mcp", "tool": "generate_github_actions", "args": {"service": "orders-service", "runtime": "node", "deployTarget": "kubernetes", "withDockerBuild": true}}'
+  --data-binary @request.json
 ```
 
 ## Files

@@ -1,0 +1,44 @@
+{
+  "server": "testing-mcp",
+  "tool": "generate_pact_contract_test",
+  "args": {
+    "consumer": "orders-web",
+    "provider": "orders-service",
+    "interactions": [
+      {
+        "description": "gets an order",
+        "state": "order 7f3c9a2e-0000-4000-8000-000000000001 exists",
+        "method": "GET",
+        "path": "/v1/orders/7f3c9a2e-0000-4000-8000-000000000001",
+        "status": 200,
+        "responseBody": {
+          "id": "7f3c9a2e-0000-4000-8000-000000000001",
+          "customer_id": "0b6d1f4a-0000-4000-8000-000000000002",
+          "status": "pending",
+          "total_cents": 2900,
+          "currency": "USD"
+        }
+      },
+      {
+        "description": "creates an order",
+        "state": "customer 0b6d1f4a-0000-4000-8000-000000000002 exists",
+        "method": "POST",
+        "path": "/v1/orders",
+        "status": 201,
+        "requestBody": {
+          "customer_id": "0b6d1f4a-0000-4000-8000-000000000002",
+          "status": "pending",
+          "total_cents": 2900,
+          "currency": "USD"
+        },
+        "responseBody": {
+          "id": "7f3c9a2e-0000-4000-8000-000000000001",
+          "customer_id": "0b6d1f4a-0000-4000-8000-000000000002",
+          "status": "pending",
+          "total_cents": 2900,
+          "currency": "USD"
+        }
+      }
+    ]
+  }
+}

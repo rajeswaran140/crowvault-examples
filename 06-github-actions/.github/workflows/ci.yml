@@ -60,7 +60,11 @@ jobs:
         run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/orders-service:${{ github.sha }}" >> "$GITHUB_ENV"
       - uses: azure/setup-kubectl@v4
       - name: Cluster credentials
-        run: echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > "$RUNNER_TEMP/kubeconfig"
+        env:
+          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
+        run: |
+          if [ -z "$KUBECONFIG_B64" ]; then echo "::error::secret KUBECONFIG_B64 is not set"; exit 1; fi
+          echo "$KUBECONFIG_B64" | base64 -d > "$RUNNER_TEMP/kubeconfig"
       - name: Roll out
         env:
           KUBECONFIG: ${{ runner.temp }}/kubeconfig

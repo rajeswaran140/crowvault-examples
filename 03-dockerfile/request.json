@@ -1,0 +1,11 @@
+{
+  "server": "devops-mcp",
+  "tool": "generate_dockerfile",
+  "args": {
+    "service": "orders-service",
+    "runtime": "node",
+    "baseImageVersion": "20",
+    "port": 3000,
+    "withHealthCheck": true
+  }
+}

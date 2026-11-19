@@ -1,0 +1,26 @@
+{
+  "server": "api-mcp",
+  "tool": "generate_openapi_spec",
+  "args": {
+    "service": "orders-service",
+    "resources": [
+      "orders",
+      "customers"
+    ],
+    "version": "1.0.0",
+    "withAuth": true,
+    "fields": {
+      "orders": [
+        "customer_id:uuid",
+        "status:enum(pending,paid,shipped,cancelled)",
+        "total_cents:integer",
+        "currency:char(3)"
+      ],
+      "customers": [
+        "email:email",
+        "name:string"
+      ]
+    },
+    "naming": "snake_case"
+  }
+}

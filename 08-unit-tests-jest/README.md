@@ -4,50 +4,54 @@ Structured cases become real assertions (`toEqual`, `toThrow`); a described-only
 
 ## Generated with
 
-Tool `generate_jest_test` (CrowVault `testing` server) with:
+Tool `generate_jest_test` (CrowVault `testing-mcp` server). The exact request is in [`request.json`](request.json):
 
 ```json
 {
-  "functionName": "calculateTotal",
-  "modulePath": "../src/orders/calculateTotal",
-  "testCases": [
-    {
-      "name": "sums line items",
-      "input": [
-        [
-          {
-            "priceCents": 1200,
-            "qty": 2
-          },
-          {
-            "priceCents": 500,
-            "qty": 1
-          }
-        ]
-      ],
-      "expected": 2900
-    },
-    {
-      "name": "returns 0 for an empty cart",
-      "input": [
-        []
-      ],
-      "expected": 0
-    },
-    {
-      "name": "rejects a negative quantity",
-      "input": [
-        [
-          {
-            "priceCents": 1200,
-            "qty": -1
-          }
-        ]
-      ],
-      "throws": "quantity"
-    },
-    "applies the loyalty discount"
-  ]
+  "server": "testing-mcp",
+  "tool": "generate_jest_test",
+  "args": {
+    "functionName": "calculateTotal",
+    "modulePath": "../src/orders/calculateTotal",
+    "testCases": [
+      {
+        "name": "sums line items",
+        "input": [
+          [
+            {
+              "priceCents": 1200,
+              "qty": 2
+            },
+            {
+              "priceCents": 500,
+              "qty": 1
+            }
+          ]
+        ],
+        "expected": 2900
+      },
+      {
+        "name": "returns 0 for an empty cart",
+        "input": [
+          []
+        ],
+        "expected": 0
+      },
+      {
+        "name": "rejects a negative quantity",
+        "input": [
+          [
+            {
+              "priceCents": 1200,
+              "qty": -1
+            }
+          ]
+        ],
+        "throws": "quantity"
+      },
+      "applies the loyalty discount"
+    ]
+  }
 }
 ```
 
@@ -56,7 +60,7 @@ From Claude Code, Cursor or any MCP client connected to CrowVault, ask for it in
 ```bash
 curl -s https://api.crowvault.ai/v1/tools/call \
   -H "Authorization: Bearer $CROWVAULT_API_KEY" -H 'Content-Type: application/json' \
-  -d '{"server": "testing-mcp", "tool": "generate_jest_test", "args": {"functionName": "calculateTotal", "modulePath": "../src/orders/calculateTotal", "testCases": [{"name": "sums line items", "input": [[{"priceCents": 1200, "qty": 2}, {"priceCents": 500, "qty": 1}]], "expected": 2900}, {"name": "returns 0 for an empty cart", "input": [[]], "expected": 0}, {"name": "rejects a negative quantity", "input": [[{"priceCents": 1200, "qty": -1}]], "throws": "quantity"}, "applies the loyalty discount"]}}'
+  --data-binary @request.json
 ```
 
 ## Files
@@ -66,4 +70,4 @@ curl -s https://api.crowvault.ai/v1/tools/call \
 ## Checked with
 
 - `tsc --noEmit --strict`: no errors
-- Run with Jest 29 against a small reference `calculateTotal` (in [`.ci/unit`](../.ci/unit), not generated): 3 passed, 1 todo
+- Run with Jest 29 against a small reference `calculateTotal` (in [`.ci/unit`](../.ci/unit), hand-written, not generated): 3 passed, 1 todo

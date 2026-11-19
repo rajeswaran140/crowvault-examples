@@ -1,0 +1,48 @@
+{
+  "01-database-schema": [
+    "schema.sql",
+    "schema.prisma"
+  ],
+  "02-openapi-spec": [
+    "openapi.yaml"
+  ],
+  "03-dockerfile": [
+    "Dockerfile",
+    ".dockerignore"
+  ],
+  "04-docker-compose": [
+    "docker-compose.yml",
+    "infra/prometheus/prometheus.yml",
+    ".env.development.example",
+    null
+  ],
+  "05-kubernetes": [
+    "k8s.yaml"
+  ],
+  "06-github-actions": [
+    ".github/workflows/ci.yml"
+  ],
+  "07-terraform-aws-rds": [
+    "main.tf",
+    "variables.tf",
+    "outputs.tf",
+    null
+  ],
+  "08-unit-tests-jest": [
+    "calculateTotal.test.ts",
+    null
+  ],
+  "09-e2e-playwright": [
+    "e2e/checkout.spec.ts",
+    "playwright.config.ts",
+    null
+  ],
+  "10-contract-pact": [
+    "test/orders-web.pact.test.ts",
+    "test/orders-service.verify.test.ts",
+    null
+  ],
+  "11-azure-container-app": [
+    "main.bicep"
+  ]
+}
