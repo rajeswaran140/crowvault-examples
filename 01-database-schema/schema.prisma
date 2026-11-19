@@ -1,0 +1,17 @@
+model Order {
+  id             String   @id @default(cuid())
+  customer_id    String
+  status         String
+  total_cents    Int
+  currency       String
+
+  // Relations
+  customer  Customer  @relation(fields: [customer_id], references: [id])
+  // NOTE: Model "Customer" must exist in your schema
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  @@index([customer_id])
+}
